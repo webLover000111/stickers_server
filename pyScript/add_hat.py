@@ -95,5 +95,6 @@ hat_img = cv2.imread(hat,-1)
 img = cv2.imread(undo_img)
 output = add_hat(img,hat_img)
 cv2.waitKey(0)
-cv2.imwrite('done_'+undo_img, output)
+imgURL = 'done_'+undo_img,
+cv2.imwrite('./assets/img/i.jpg', output)
 cv2.destroyAllWindows()

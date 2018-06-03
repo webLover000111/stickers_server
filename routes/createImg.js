@@ -28,9 +28,15 @@ router.post('/', function (req, res, next) {
       if (error) {
         console.log(error);
       } else if (results.toString()) {
-        base64topjpg(imageOne, '1231.jpg')
+        const user = results[0];
+        const {username} = user;
+        const saltForImg = (new Date()).getTime();
+        const imgBaseURL = './assets/primitive/'
+        const img = `${imgBaseURL}${username}_${saltForImg}.jpg`;
+        base64topjpg(imageOne, img)
           .then(function(path){
-            console.log('success !!');
+            console.log(path);
+
           })
           .catch(function(err){
             console.error(err);
@@ -38,7 +44,7 @@ router.post('/', function (req, res, next) {
         const options = {
           mode: 'text',
           pythonOptions: ['-u'], // get print results in real-time
-          args: ['hat2.png', '1231.jpg']
+          args: ['./assets/stickers/hat2.png', img]
         };
         pythonShell.run('./pyScript/add_hat.py', options, (err) => {
           console.log(err);

@@ -3,49 +3,48 @@ var router = express.Router();
 var crypto = require('crypto');
 var db = require('./connect.db');
 var salt = (new Date()).getTime();
-function hashData(str){
-    let md5 = crypto.createHash('md5');
-    md5.update(str);
-    return md5.digest('hex');
+var path = require('path');
+const pythonShell = require('python-shell');
+const base64topjpg = require('base64-to-jpg');
+
+function hashData(str) {
+  let md5 = crypto.createHash('md5');
+  md5.update(str);
+  return md5.digest('hex');
 }
 
-/* router.post('/login', function(req, res, next ) {
-    let name = req.body.name;
-    let password = req.body.password;
-    name = hashData(name);
-    password = hashData(password);
-    db('select * from users where name =?',[name], function(error, results, fields){
-        if(error){
-            throw error;
-        }
-        else if(!results.toString()){
-            res.send({
-                "msg":"用户名不存在!",
-                "status":false
-            });
-        }
-        else if(results.toString()){
-            db('select * from users where password=?',[password], function(error, results, fields){
-                if(error){
-                    throw error;
-                }
-                else if(!results.toString()){
-                    res.send({
-                        "msg":'密码错误!',
-                        "status":false
-                    });
-
-                }
-                else if(results.toString()){
-                    req.session.userName = name;
-                    res.send({
-                        "msg":"登录成功!",
-                        "status": true
-                    })
-                }
-            })
-        }
-
+router.post('/', function (req, res, next) {
+  const token = req.cookies.token;
+  const imageOne = req.body.imageOne;
+  console.log('sdffds')
+  console.log(token)
+  if (!token) {
+    res.send({
+      "msg": "登陆过期，请重新登陆",
+      "code": 401
     });
-}); */
+  } else {
+    db('select * from user where token=?', [token], function (error, results, fields) {
+      if (error) {
+        console.log(error);
+      } else if (results.toString()) {
+        base64topjpg(imageOne, '1231.jpg')
+          .then(function(path){
+            console.log('success !!');
+          })
+          .catch(function(err){
+            console.error(err);
+          })
+        const options = {
+          mode: 'text',
+          pythonOptions: ['-u'], // get print results in real-time
+          args: ['hat2.png', '1231.jpg']
+        };
+        pythonShell.run('./pyScript/add_hat.py', options, (err) => {
+          console.log(err);
+        })
+      }
+    })
+  }
+});
 module.exports = router;

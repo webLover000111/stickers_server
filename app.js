@@ -7,11 +7,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var serveStatic = require('serve-static');
 const cors = require('cors');
-/* const pythonShell = require('python-shell'); */
 
-/* pythonShell.run('./pyScript/gif_gender.py', (err) => {
-  console.log(err);
-}) */
 const Index = require('./routes/index');
 const Logup = require('./routes/logup');
 const Login = require('./routes/login');
@@ -19,9 +15,8 @@ const User = require('./routes/user');
 const CreateGif = require('./routes/createGif');
 const CreateImg = require('./routes/createImg');
 var app = express();
-
 app.use(cors());
-
+console.log(bodyParser.json)
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -31,21 +26,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json({ type: 'application/*+json' }));
-app.use('/', express.static(path.join(__dirname,'client')));
-app.use(session({
+/* app.use('/', express.static(path.join(__dirname,'client'))); */
+/* app.use(session({
     secret :  'secrect',
     resave : true,
     saveUninitialized: false,
     cookie : {
         maxAge : 3600*2,
     }
-}));
+})); */
 /* app.use(serveStatic(path.join(__dirname, 'client/assets'))); */
 app.use('/', Index);
 app.use('/index', Index);
 app.use('/main', Index);
-app.use('/login', Login);
 app.use('/logup', Logup);
+app.use('/login', Login);
 app.use('/create_gif',CreateGif);
 app.use('/create_img', CreateImg);
 

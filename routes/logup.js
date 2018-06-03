@@ -9,43 +9,51 @@ function hashData(str){
     return md5.digest('hex');
 }
 
-/* router.post('/login', function(req, res, next ) {
-    let name = req.body.name;
+router.post('/', function(req, res, next ) {
+    let username = req.body.username;
     let password = req.body.password;
-    name = hashData(name);
-    password = hashData(password);
-    db('select * from users where name =?',[name], function(error, results, fields){
-        if(error){
-            throw error;
+    let email = req.body.email;
+    const token = hashData(username + salt);
+    console.log('logup')
+    db('select * from user where username =?',[username], function(error, results, fields){
+        if (error) {
+            console.log(error);
         }
-        else if(!results.toString()){
+        else if (results.toString()) {
             res.send({
-                "msg":"用户名不存在!",
-                "status":false
+                "msg":"用户名已经存在!",
+                "code":400
             });
         }
-        else if(results.toString()){
-            db('select * from users where password=?',[password], function(error, results, fields){
-                if(error){
-                    throw error;
+        else if (!results.toString()) {
+          db('select * from user where email =?',[email], function(error, results, fields) {
+            if (error) {
+              console.log(error);
+            }
+            else if (results.toString()) {
+              res.send({
+                "msg": "邮箱已经注册",
+                "code": 400
+              });
+            }
+            else {
+              db('insert into user (username, password, token, email) values (?,?,?,?)', [username, password, token, email], function(error, results, fields) {
+                if (error) {
+                  console.log(error);
                 }
-                else if(!results.toString()){
-                    res.send({
-                        "msg":'密码错误!',
-                        "status":false
-                    });
-
+                else {
+                  let date = new Date();
+                  date.setTime(date.getTime()+0.5*3600*1000);
+                  res.setHeader('Set-Cookie', `token=${token}; Expires=${date.toGMTString()};HttpOnly`);
+                  res.send({
+                    "code": 0
+                  });
                 }
-                else if(results.toString()){
-                    req.session.userName = name;
-                    res.send({
-                        "msg":"登录成功!",
-                        "status": true
-                    })
-                }
-            })
+              });
+            }
+          });
         }
 
     });
-}); */
+});
 module.exports = router;

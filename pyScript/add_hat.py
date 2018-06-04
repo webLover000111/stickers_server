@@ -90,11 +90,12 @@ hat = sys.argv[1]
 undo_img = sys.argv[2]
 # 读取帽子图，第二个参数-1表示读取为rgba通道，否则为rgb通道
 hat_img = cv2.imread(hat,-1)
+imgName = sys.argv[3]
 
 # 读取头像图
 img = cv2.imread(undo_img)
 output = add_hat(img,hat_img)
+imgUrl = './assets/img/'+'done_'+imgName
 cv2.waitKey(0)
-imgURL = 'done_'+undo_img,
-cv2.imwrite('./assets/img/i.jpg', output)
+cv2.imwrite(imgUrl, output)
 cv2.destroyAllWindows()

@@ -3,49 +3,103 @@ var router = express.Router();
 var crypto = require('crypto');
 var db = require('./connect.db');
 var salt = (new Date()).getTime();
+var path = require('path');
+var fs = require('fs');
+const pythonShell = require('python-shell');
+const base64topjpg = require('base64-to-jpg');
 function hashData(str){
     let md5 = crypto.createHash('md5');
     md5.update(str);
     return md5.digest('hex');
 }
 
-/* router.post('/login', function(req, res, next ) {
-    let name = req.body.name;
-    let password = req.body.password;
-    name = hashData(name);
-    password = hashData(password);
-    db('select * from users where name =?',[name], function(error, results, fields){
-        if(error){
-            throw error;
-        }
-        else if(!results.toString()){
-            res.send({
-                "msg":"用户名不存在!",
-                "status":false
-            });
-        }
-        else if(results.toString()){
-            db('select * from users where password=?',[password], function(error, results, fields){
-                if(error){
-                    throw error;
-                }
-                else if(!results.toString()){
-                    res.send({
-                        "msg":'密码错误!',
-                        "status":false
-                    });
-
-                }
-                else if(results.toString()){
-                    req.session.userName = name;
-                    res.send({
-                        "msg":"登录成功!",
-                        "status": true
-                    })
-                }
-            })
-        }
-
+router.post('/', function (req, res, next) {
+  const token = req.cookies.token;
+  const imageArr = req.body.imageArr;
+  if (!token) {
+    res.send({
+      "msg": "登陆过期，请重新登陆",
+      "code": 401
     });
-}); */
+  } else {
+    db('select * from user where token=?', [token], function (error, results, fields) {
+      if (error) {
+        console.log(error);
+      } else if (results.toString()) {
+        const user = results[0];
+        const {username} = user;
+        const saltForImg = (new Date()).getTime();
+        const imgBaseURL = './assets/'
+        const primitiveImg = `${imgBaseURL}primitive/${username}_${saltForImg}`;
+        const addedImg = `${imgBaseURL}img/${username}_${saltForImg}`;
+        const imgList = [];
+        const randomSticker = `./assets/stickers/hat_${Math.floor(Math.random()*3)}.png`;
+
+        async function saveImg (callback) {
+          for ( let i = 0; i < imageArr.length; i++) {
+            await callback(i);
+          }
+          console.log(imgList)
+          const options2 = {
+            mode: 'binary',
+            args: [ imgList[0], imgList[1] ,imgList[2], imgList[3], imgList[4], imgList[5],imgList[6], imgList[7], imgList[8], imgList[9], imgList[10], imgList[11], `./assets/gif/${username}_${saltForImg}.gif`]
+          };
+          pythonShell.run('./pyScript/gif_gender.py', options2, (err, results) => {
+            if (err) {
+              console.log(err);
+            }
+            else {
+              const url = `./assets/gif/${username}_${saltForImg}.gif`;
+              fs.readFile(url, (err, data) => {
+                  if (err) {
+                    console.log(err);
+                  }
+                  else {
+                    const dataBase64 = data.toString('base64');
+                    const gifBase64 = `data:image/gif;base64,${dataBase64}`;
+                    const gif = {
+                      "resultGif": gifBase64,
+                      "code": 0
+                    }
+                    res.send(gif)
+                  }
+              })
+            }
+          });
+        }
+        async function fCallback (i) {
+          await base64topjpg(imageArr[i],`${primitiveImg}_${i}.jpg`)
+          .then(function(path){
+            /* console.log(path); */
+          })
+          .catch(function(err){
+            console.error(err);
+            return
+          });
+          await addSticker(i);
+          while (!fs.existsSync(`./assets/img/done_${username}_${saltForImg}_${i}.jpg`)) {
+            
+          }
+          console.log(`add stickers for primitiveImg  ${i} successfully!`);
+          imgList.push(`./assets/img/done_${username}_${saltForImg}_${i}.jpg`);
+        }
+
+        async function addSticker (i) {
+          const options1 = {
+            mode: 'binary',
+            args: [randomSticker, `${primitiveImg}_${i}.jpg`, `${username}_${saltForImg}_${i}.jpg` ]
+          };
+          await pythonShell.run('./pyScript/add_hat.py', options1, (err, results) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+          });
+        }
+        saveImg (fCallback);
+      }
+    })
+  }
+});
+
 module.exports = router;

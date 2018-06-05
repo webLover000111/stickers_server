@@ -85,7 +85,8 @@ def add_hat(img,hat_img):
             img[y+dh-resized_hat_h:y+dh,(eyes_center[0]-resized_hat_w//3):(eyes_center[0]+resized_hat_w//3*2)] = add_hat
 
             return img
-print(sys.argv)
+    else:
+      return img
 hat = sys.argv[1]
 undo_img = sys.argv[2]
 # 读取帽子图，第二个参数-1表示读取为rgba通道，否则为rgb通道

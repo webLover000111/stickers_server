@@ -1,8 +1,8 @@
 import imageio
 import sys
 
-img = sys.argv[1: 12]
-gifname = sys.argv[13]
+img = sys.argv[1: 24]
+gifname = sys.argv[25]
 def create_gif(image_list, gif_name):
     frames = []
     for image_name in image_list:

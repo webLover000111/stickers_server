@@ -42,7 +42,9 @@ router.post('/', function (req, res, next) {
           console.log(imgList)
           const options2 = {
             mode: 'binary',
-            args: [ imgList[0], imgList[1] ,imgList[2], imgList[3], imgList[4], imgList[5],imgList[6], imgList[7], imgList[8], imgList[9], imgList[10], imgList[11], `./assets/gif/${username}_${saltForImg}.gif`]
+            args: [ imgList[0], imgList[1] ,imgList[2], imgList[3], imgList[4], imgList[5],imgList[6], imgList[7], imgList[8], imgList[9], imgList[10], imgList[11], 
+            imgList[12], imgList[13] ,imgList[14], imgList[15], imgList[16], imgList[17],imgList[18], imgList[19], imgList[20], imgList[21], imgList[22], imgList[23],
+            `./assets/gif/${username}_${saltForImg}.gif`]
           };
           pythonShell.run('./pyScript/gif_gender.py', options2, (err, results) => {
             if (err) {
@@ -78,7 +80,6 @@ router.post('/', function (req, res, next) {
           });
           await addSticker(i);
           while (!fs.existsSync(`./assets/img/done_${username}_${saltForImg}_${i}.jpg`)) {
-            
           }
           console.log(`add stickers for primitiveImg  ${i} successfully!`);
           imgList.push(`./assets/img/done_${username}_${saltForImg}_${i}.jpg`);

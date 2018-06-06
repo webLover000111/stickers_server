@@ -17,7 +17,6 @@ function hashData(str) {
 router.post('/', function (req, res, next) {
   const token = req.cookies.token;
   const imageOne = req.body.imageOne;
-  console.log('sdffds')
   console.log(token)
   if (!token) {
     res.send({
@@ -25,7 +24,7 @@ router.post('/', function (req, res, next) {
       "code": 401
     });
   } else {
-    db('select * from user where token=?', [token], function (error, results, fields) {
+    db('select * from user where token=?', [token], (error, results, fields) => {
       if (error) {
         console.log(error);
       } else if (results.toString()) {
@@ -34,6 +33,9 @@ router.post('/', function (req, res, next) {
         const saltForImg = (new Date()).getTime();
         const imgBaseURL = './assets/primitive/'
         const img = `${imgBaseURL}${username}_${saltForImg}.jpg`;
+        const random = Math.floor(Math.random()*11);
+        const randomSticker = `./assets/stickers/hat_${random}.png`;
+        const randomStar = `./assets/starImg/star_${random}.jpg`;
         base64topjpg(imageOne, img)
           .then(function(path){
             console.log(path);
@@ -44,30 +46,67 @@ router.post('/', function (req, res, next) {
           })
         const options = {
           mode: 'binary',
-          args: ['./assets/stickers/hat2.png', img, `${username}_${saltForImg}.jpg`]
+          args: [randomSticker, img, `${username}_${saltForImg}.jpg`]
         };
         pythonShell.run('./pyScript/add_hat.py', options, (err, results) => {
           if (err) {
             console.log(err);
+            return;
           }
           else {
-            const url = `./assets/img/done_${username}_${saltForImg}.jpg`;
-            fs.readFile(url, (err, data) => {
+            const done_img = `./assets/img/done_${username}_${saltForImg}.jpg`;
+            db('select * from img where username=?', [username], (err, results) => {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              else if (results && results.length){
+                const database_primitive = results[0].primitive ? results[0].primitive.split(','): [];
+                const database_img = results[0].img? results[0].img.split(','):[];
+                database_primitive.push(img);
+                database_img.push(done_img);
+                db('update img set primitive=?,img=?', [database_primitive.toString(), database_img.toString() ], (err, results) =>{
+                  if (err) {
+                    console.log(err);
+                    return;
+                  }
+                });
+              } else {
+                db('insert into img (username, primitive, img) values (?,?,?)', [username, img, done_img], (err, results) =>{
+                  if (err) {
+                    console.log(err);
+                    return;
+                  }
+                });
+              }
+             });
+            fs.readFile(done_img, (err, data_img) => {
                 if (err) {
                   console.log(err);
                 }
                 else {
-                  const dataBase64 = data.toString('base64');
-                  const imgBase64 = `data:image/jpeg;base64,${dataBase64}`;
-                  const img = {
-                    "resultImg": imgBase64,
-                    "code": 0
-                  }
-                  res.send(img)
+                  const dataBase64 = data_img.toString('base64');
+                  fs.readFile(randomStar, (err,data_star) => {
+                    if (err) {
+                      console.log(err);
+                      return;
+                    }
+                    else {
+                      const dataStarBase64 = data_star.toString('base64');
+                      const starBase64 = `data:image/jpeg;base64,${dataStarBase64}`;
+                      const imgBase64 = `data:image/jpeg;base64,${dataBase64}`;
+                      const img = {
+                        "resultImg": imgBase64,
+                        'star': starBase64,
+                        "code": 0
+                      };
+                      res.send(img);
+                    }
+                  })
                 }
-            })
+            });
           }
-        })
+        });
       }
     })
   }

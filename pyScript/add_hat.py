@@ -43,7 +43,7 @@ def add_hat(img,hat_img):
             eyes_center = ((point1.x+point2.x)//2,(point1.y+point2.y)//2)
 
             #  根据人脸大小调整帽子大小
-            factor = 1.5
+            factor = 1.2
             resized_hat_h = int(round(rgb_hat.shape[0]*w/rgb_hat.shape[1]*factor))
             resized_hat_w = int(round(rgb_hat.shape[1]*w/rgb_hat.shape[1]*factor))
 
@@ -61,8 +61,8 @@ def add_hat(img,hat_img):
             dh = 0
             dw = 0
             # 原图ROI
-            # bg_roi = img[y+dh-resized_hat_h:y+dh, x+dw:x+dw+resized_hat_w]
-            bg_roi = img[y+dh-resized_hat_h:y+dh,(eyes_center[0]-resized_hat_w//3):(eyes_center[0]+resized_hat_w//3*2)]
+            #bg_roi = img[y+dh-resized_hat_h:y+dh, x+dw:x+dw+resized_hat_w]
+            bg_roi = img[y+dh-resized_hat_h:y+dh,(eyes_center[0]-resized_hat_w//3)-20:(eyes_center[0]+resized_hat_w//3*2)-20]
 
             # 原图ROI中提取放帽子的区域
             bg_roi = bg_roi.astype(float)
@@ -82,7 +82,7 @@ def add_hat(img,hat_img):
             add_hat = cv2.add(bg,hat)
 
             # 把添加好帽子的区域放回原图
-            img[y+dh-resized_hat_h:y+dh,(eyes_center[0]-resized_hat_w//3):(eyes_center[0]+resized_hat_w//3*2)] = add_hat
+            img[y+dh-resized_hat_h:y+dh,(eyes_center[0]-resized_hat_w//3)-20:(eyes_center[0]+resized_hat_w//3*2)-20] = add_hat
 
             return img
     else:

@@ -33,7 +33,7 @@ router.post('/', function (req, res, next) {
         const primitiveImg = `${imgBaseURL}primitive/${username}_${saltForImg}`;
         const addedImg = `${imgBaseURL}img/${username}_${saltForImg}`;
         const imgList = [];
-        const randomSticker = `./assets/stickers/hat_${Math.floor(Math.random()*3)}.png`;
+        const randomSticker = `./assets/stickers/hat_${Math.floor(Math.random()*12)}.png`;
 
         async function saveImg (callback) {
           for ( let i = 0; i < imageArr.length; i++) {
@@ -51,8 +51,36 @@ router.post('/', function (req, res, next) {
               console.log(err);
             }
             else {
-              const url = `./assets/gif/${username}_${saltForImg}.gif`;
-              fs.readFile(url, (err, data) => {
+              const gifUrl = `./assets/gif/${username}_${saltForImg}.gif`;
+
+              db('select * from img where username=?', [username], (err, results) => {
+                if (err) {
+                  console.log(err);
+                  return;
+                }
+                else if (results.length){
+                  const database_gif_primitive = results[0].gif_primitive? results[0].gif_primitive.split(','): [];
+                  const database_gif = results[0].gif? results[0].gif.split(',') : [];
+                  database_gif_primitive.push(primitiveImg);
+                  database_gif.push(gifUrl);
+                  db('update img set gif_primitive=? , gif=? where username=?', [database_gif_primitive.toString(), database_gif.toString(), username ], (err, results) =>{
+                    if (err) {
+                      console.log(err);
+                      return;
+                    }
+                  });
+                } else {
+                  db('insert into img (username, primitive, img) values (?,?,?)', [username, primitiveImg, gifUrl], (err, results) =>{
+                    if (err) {
+                      console.log(err);
+                      return;
+                    }
+                  });
+                }
+               });
+
+
+              fs.readFile(gifUrl, (err, data) => {
                   if (err) {
                     console.log(err);
                   }

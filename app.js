@@ -11,7 +11,6 @@ const cors = require('cors');
 const Index = require('./routes/index');
 const Logup = require('./routes/logup');
 const Login = require('./routes/login');
-const User = require('./routes/user');
 const CreateGif = require('./routes/createGif');
 const CreateImg = require('./routes/createImg');
 var app = express();

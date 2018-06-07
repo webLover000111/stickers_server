@@ -26,6 +26,7 @@ router.post('/', function (req, res, next) {
     db('select * from user where token=?', [token], (error, results, fields) => {
       if (error) {
         console.log(error);
+        return;
       } else if (results.toString()) {
         const user = results[0];
         const {username} = user;
@@ -42,6 +43,7 @@ router.post('/', function (req, res, next) {
           })
           .catch(function(err){
             console.error(err);
+            return;
           })
         const options = {
           mode: 'binary',
@@ -97,6 +99,7 @@ router.post('/', function (req, res, next) {
                       const img = {
                         "resultImg": imgBase64,
                         'star': starBase64,
+                        "imgName": `done_${username}_${saltForImg}.jpg`,
                         "code": 0
                       };
                       res.send(img);

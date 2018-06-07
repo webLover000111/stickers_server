@@ -13,6 +13,7 @@ const Logup = require('./routes/logup');
 const Login = require('./routes/login');
 const CreateGif = require('./routes/createGif');
 const CreateImg = require('./routes/createImg');
+const Download = require('./routes/download');
 var app = express();
 app.use(cors());
 // view engine setup
@@ -43,6 +44,7 @@ app.use('/logup', Logup);
 app.use('/login', Login);
 app.use('/create_gif',CreateGif);
 app.use('/create_img', CreateImg);
+app.use('/download',Download);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {

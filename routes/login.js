@@ -27,6 +27,7 @@ router.post('/', function (req, res, next) {
       db('select * from user where password=?', [password], function (error, results, fields) {
         if (error) {
           console.log(error);
+          return;
         } else if (!results.toString()) {
           res.send({
             "msg": '密码错误!',
@@ -37,6 +38,7 @@ router.post('/', function (req, res, next) {
           db('update user set token = ? where username = ?', [token,  username], function (error, results, fields) {
             if (error) {
               console.log(error);
+              return;
             } else {
               let date = new Date();
               date.setTime(date.getTime()+0.5*3600*1000);

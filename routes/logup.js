@@ -14,10 +14,10 @@ router.post('/', function(req, res, next ) {
     let password = req.body.password;
     let email = req.body.email;
     const token = hashData(username + salt);
-    console.log('logup')
     db('select * from user where username =?',[username], function(error, results, fields){
         if (error) {
             console.log(error);
+            return;
         }
         else if (results.toString()) {
             res.send({
@@ -29,6 +29,7 @@ router.post('/', function(req, res, next ) {
           db('select * from user where email =?',[email], function(error, results, fields) {
             if (error) {
               console.log(error);
+              return;
             }
             else if (results.toString()) {
               res.send({
@@ -40,6 +41,7 @@ router.post('/', function(req, res, next ) {
               db('insert into user (username, password, token, email) values (?,?,?,?)', [username, password, token, email], function(error, results, fields) {
                 if (error) {
                   console.log(error);
+                  return;
                 }
                 else {
                   let date = new Date();

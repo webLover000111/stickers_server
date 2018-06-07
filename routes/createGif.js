@@ -25,6 +25,7 @@ router.post('/', function (req, res, next) {
     db('select * from user where token=?', [token], function (error, results, fields) {
       if (error) {
         console.log(error);
+        return;
       } else if (results.toString()) {
         const user = results[0];
         const {username} = user;
@@ -39,7 +40,6 @@ router.post('/', function (req, res, next) {
           for ( let i = 0; i < imageArr.length; i++) {
             await callback(i);
           }
-          console.log(imgList)
           const options2 = {
             mode: 'binary',
             args: [ imgList[0], imgList[1] ,imgList[2], imgList[3], imgList[4], imgList[5],imgList[6], imgList[7], imgList[8], imgList[9], imgList[10], imgList[11], 
@@ -49,6 +49,7 @@ router.post('/', function (req, res, next) {
           pythonShell.run('./pyScript/gif_gender.py', options2, (err, results) => {
             if (err) {
               console.log(err);
+              return;
             }
             else {
               const gifUrl = `./assets/gif/${username}_${saltForImg}.gif`;
@@ -83,12 +84,14 @@ router.post('/', function (req, res, next) {
               fs.readFile(gifUrl, (err, data) => {
                   if (err) {
                     console.log(err);
+                    return;
                   }
                   else {
                     const dataBase64 = data.toString('base64');
                     const gifBase64 = `data:image/gif;base64,${dataBase64}`;
                     const gif = {
                       "resultGif": gifBase64,
+                      "gifName": `${username}_${saltForImg}.gif`,
                       "code": 0
                     }
                     res.send(gif)
@@ -109,7 +112,7 @@ router.post('/', function (req, res, next) {
           await addSticker(i);
           while (!fs.existsSync(`./assets/img/done_${username}_${saltForImg}_${i}.jpg`)) {
           }
-          console.log(`add stickers for primitiveImg  ${i} successfully!`);
+          console.log(`add stickers to primitiveImg  ${i} successfully!`);
           imgList.push(`./assets/img/done_${username}_${saltForImg}_${i}.jpg`);
         }
 

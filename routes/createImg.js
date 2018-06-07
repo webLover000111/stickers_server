@@ -17,7 +17,6 @@ function hashData(str) {
 router.post('/', function (req, res, next) {
   const token = req.cookies.token;
   const imageOne = req.body.imageOne;
-  console.log(token)
   if (!token) {
     res.send({
       "msg": "登陆过期，请重新登陆",
